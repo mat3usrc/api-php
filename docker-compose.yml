@@ -1,0 +1,48 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+
+    mariadb:
+      image: mariadb:10.1
+      container_name: api-test-mariadb
+      working_dir: /application
+      volumes:
+        - .:/application
+      environment:
+        - MYSQL_ROOT_PASSWORD=q1w2e3r4
+        - MYSQL_DATABASE=api_db
+        - MYSQL_USER=dev
+        - MYSQL_PASSWORD=q1w2e3r4
+      ports:
+        - "1348:3306"
+
+    phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: phpmyadmin
+      environment:
+        - PMA_ARBITRARY=1
+        - PMA_PORT=3306
+      restart: always
+      ports:
+        - "1346:80"
+
+    webserver:
+      image: nginx:alpine
+      container_name: api-test-webserver
+      working_dir: /application
+      volumes:
+          - .:/application
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "1345:8080"
+
+    php-fpm:
+      build: phpdocker/php-fpm
+      container_name: api-test-php-fpm
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.2/fpm/conf.d/99-overrides.ini
+
